@@ -7,6 +7,7 @@ import { ChevronsLeft, MenuIcon } from "lucide-react"
 import { useMediaQuery } from "usehooks-ts"
 
 import { cn } from "@/lib/utils"
+import UserItem from "./useritem"
 
 export default function Navigation () {
     const pathname = usePathname()
@@ -26,7 +27,7 @@ export default function Navigation () {
         ResetWidth()
       }
     }, [isMobile])
-
+ 
     useEffect(() => {
         if(isMobile) {
             Collapse()
@@ -73,9 +74,9 @@ export default function Navigation () {
             setIsCollapsed(false)
             setIsResetting(true)
 
-            sidebarRef.current.style.width =  isMobile ? " 100% ": "480px" ;
-            navbarRef.current.style.setProperty('width' , isMobile ? '0' : 'calc(100%-480px)')
-            navbarRef.current.style.setProperty('left' , isMobile ? '100%' : '480px')
+            sidebarRef.current.style.width =  isMobile ? " 100% ": "280px" ;
+            navbarRef.current.style.setProperty('width' , isMobile ? '0' : 'calc(100%-240px)')
+            navbarRef.current.style.setProperty('left' , isMobile ? '100%' : '240px')
             
             setTimeout(() => {
                 setIsResetting(false)
@@ -88,9 +89,9 @@ export default function Navigation () {
             setIsCollapsed(true)
             setIsResetting(true)
 
-            sidebarRef.current.style.width = isMobile ? '0' : '240px'
-            navbarRef.current.style.setProperty('width' , isMobile ? '100%' : 'calc(100%-240px)')
-            navbarRef.current.style.setProperty('left' , isMobile ? '0' : '240px')
+            sidebarRef.current.style.width = '0'
+            navbarRef.current.style.setProperty('width' , '100%')
+            navbarRef.current.style.setProperty('left' , '0')
             
             setTimeout(() => {
                 setIsResetting(false)
@@ -113,7 +114,7 @@ export default function Navigation () {
                 </div>
                 
                 <div>
-                    <p>action itmes</p>    
+                    <UserItem />    
                 </div>                
 
                 <div className="mt-4">

@@ -1,7 +1,12 @@
 'use client'
 
 import Image from "next/image";
+
 import { useUser } from "@clerk/clerk-react";
+
+import { Button } from "@/components/ui/button";
+
+import { PlusCircle } from "lucide-react";
 
 export default function DocumentsPage () {
 
@@ -16,6 +21,11 @@ export default function DocumentsPage () {
             <h2 className="text-lg font-meduim">
                 Welcome To {user?.firstName}&apos;s Aotion
             </h2>
+
+            <Button>
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Create new note
+            </Button>
             
         </div>
     )

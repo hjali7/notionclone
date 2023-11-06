@@ -1,0 +1,4 @@
+trunk_cli_version: 1.17.1
+title: "Error while executing: public\\reading.png"
+report:
+  - "filesystem error: in create_hard_link: Improper link [\"F:\\next_js_projects\\notionclone\\.env.local\"] [\"C:\\Users\\user\\AppData\\Local\\Temp\\trunk\\6fmkjui\\.env.local\"]"

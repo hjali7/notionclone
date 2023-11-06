@@ -1,0 +1,4 @@
+trunk_cli_version: 1.17.1
+title: "Error while executing: .trunk\\configs\\.markdownlint.yaml... (35 files)"
+report:
+  - "filesystem error: in create_hard_link: Improper link [\"F:\\next_js_projects\\notionclone\\app\\(main)\\layout.tsx\"] [\"C:\\Users\\user\\AppData\\Local\\Temp\\trunk\\1lk6a2n\\app\\(main)\\layout.tsx\"]"
