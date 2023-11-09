@@ -1,4 +1,0 @@
-trunk_cli_version: 1.17.1
-title: "Error while executing: components.json... (3 files)"
-report:
-  - "filesystem error: in create_hard_link: Improper link [\"F:\\next_js_projects\\notionclone\\.env.local\"] [\"C:\\Users\\user\\AppData\\Local\\Temp\\trunk\\c26jx5h\\45pybld\\.env.local\"]"

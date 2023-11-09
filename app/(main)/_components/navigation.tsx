@@ -3,13 +3,21 @@
 import { ElementRef, useRef, useState , useEffect} from "react"
 import { usePathname } from "next/navigation"
 
-import { ChevronsLeft, MenuIcon } from "lucide-react"
+import { ChevronsLeft, MenuIcon, PlusCircle, Search, Settings } from "lucide-react"
 import { useMediaQuery } from "usehooks-ts"
 
 import { cn } from "@/lib/utils"
 import UserItem from "./useritem"
 
+import { useMutation, useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import Item from "./item"
+import { toast } from "sonner"
+
 export default function Navigation () {
+    const create = useMutation(api.documents.create)
+
+
     const pathname = usePathname()
     const isMobile = useMediaQuery('(max-width: 768px)')
 
@@ -98,8 +106,7 @@ export default function Navigation () {
             }, 300);
         }
     }
-    
-    
+        
     return (
         <>
             <aside
@@ -115,10 +122,13 @@ export default function Navigation () {
                 
                 <div>
                     <UserItem />    
+                    <Item isSearch label="search" icon={Search} onClick={()=>{}} />
+                    <Item label="setting" icon={Settings} onClick={()=>{}} />
+                    <Item onClick={()=>{}} label='new label' icon={PlusCircle} />
                 </div>                
 
                 <div className="mt-4">
-                    <p>documents</p>
+                    
                 </div>
                 <div
                  onMouseDown={handleMouseDown}
