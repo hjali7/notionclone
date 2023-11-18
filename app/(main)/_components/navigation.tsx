@@ -13,6 +13,7 @@ import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import Item from "./item"
 import { toast } from "sonner"
+import DocumentList from "./document-list"
 
 export default function Navigation () {
     const create = useMutation(api.documents.create)
@@ -128,7 +129,7 @@ export default function Navigation () {
                 </div>                
 
                 <div className="mt-4">
-                    
+                    <DocumentList />
                 </div>
                 <div
                  onMouseDown={handleMouseDown}
