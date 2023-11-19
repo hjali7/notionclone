@@ -1,50 +1,60 @@
 'use client'
 
 import { ElementRef, useRef, useState , useEffect} from "react"
-import { usePathname } from "next/navigation"
-
-import { ChevronsLeft, MenuIcon, PlusCircle, Search, Settings } from "lucide-react"
-import { useMediaQuery } from "usehooks-ts"
-
-import { cn } from "@/lib/utils"
-import UserItem from "./useritem"
+import { usePathname, useRouter } from "next/navigation"
 
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
+
+import { useMediaQuery } from "usehooks-ts"
+
+import {Popover , PopoverContent , PopoverTrigger} from '@/components/ui/popover'
+import { cn } from "@/lib/utils"
+import { ChevronsLeft, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react"
+
+import UserItem from "./useritem"
 import Item from "./item"
-import { toast } from "sonner"
 import DocumentList from "./document-list"
 
-export default function Navigation () {
-    const create = useMutation(api.documents.create)
+import { toast } from "sonner"
 
+export default function Navigation () {
+    const router = useRouter()
+    const create = useMutation(api.documents.create)
 
     const pathname = usePathname()
     const isMobile = useMediaQuery('(max-width: 768px)')
-
+    
     const isResizingRef = useRef(false)
     const sidebarRef = useRef<ElementRef<'aside'>>(null)
     const navbarRef = useRef<ElementRef<'div'>>(null)
-
+    
     const [ isResetting , setIsResetting ] = useState(false)
     const [ isCollapsed , setIsCollapsed ] = useState(isMobile)
-
+    
     useEffect(() => {
-      if(isMobile) {
-        Collapse()
-      }else {
-        ResetWidth()
-      }
+        if(isMobile) {
+            Collapse()
+        }else {
+            ResetWidth()
+        }
     }, [isMobile])
- 
     useEffect(() => {
         if(isMobile) {
             Collapse()
         }
     }, [pathname , isMobile])
-    
-    
+    const handleCreate = () => {
+        const promise = create({title : 'Untitled'})
+            .then(
+                documentId => router.push(`/documents/${documentId}`))
 
+        toast.promise(promise , {
+            loading : 'Please Wait ...',
+            success : 'New Note created!',
+            error   : 'Failed to Create New Note!'
+        })
+    }
     const handleMouseDown = (event : React.MouseEvent<HTMLElement , MouseEvent>) => {
         event.preventDefault()
         event.stopPropagation()
@@ -130,6 +140,15 @@ export default function Navigation () {
 
                 <div className="mt-4">
                     <DocumentList />
+                    <Item label="Add New Note" onClick={handleCreate} icon={Plus} />
+                    <Popover>
+                        <PopoverTrigger className="w-full mt-4">
+                            <Item icon={Trash} label="Trash" />
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0 w-72" side={isMobile ? 'bottom' : 'right'}>
+                            <p>Trash box</p>
+                        </PopoverContent>
+                    </Popover>
                 </div>
                 <div
                  onMouseDown={handleMouseDown}

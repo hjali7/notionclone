@@ -7,11 +7,13 @@ import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { ChevronDown, ChevronRight, LucideIcon, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, LucideIcon, MoreHorizontal, Plus, Trash } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
+import { DropdownMenu , DropdownMenuContent , DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger , } from "@/components/ui/dropdown-menu";
+import { useUser } from "@clerk/clerk-react";
 
 interface ItemProps{
     id?: Id<"documents">  ;
@@ -22,7 +24,7 @@ interface ItemProps{
     level?:    number ;
     onExpand?: () => void ;
     label:     string ;
-    onClick: ()=> void ;
+    onClick?: ()=> void ;
     icon:     LucideIcon ;
 }
 
@@ -41,6 +43,28 @@ export default function Item (
     isSearch ,
 
 } : ItemProps) {
+
+    const { user } = useUser()
+
+    const archive = useMutation(api.documents.archived)
+
+    const handleArchived = (
+      event : React.MouseEvent<HTMLDivElement , MouseEvent>
+    ) => {
+
+      event.stopPropagation()
+
+      if(!id) return ;
+
+      const promise = archive({ id })
+
+      toast.promise(promise , {
+        loading : 'Moving to Trash...',
+        success : 'Note Move to Trash!',
+        error   : 'sometime went wrong...'
+      })
+
+    }
 
     const router = useRouter()
     const create = useMutation(api.documents.create)
@@ -111,17 +135,46 @@ export default function Item (
                     <span className='text-xs'>CTR</span> K
                 </kbd>
             )}
+
             {!!id && (
-                <div className="ml-auto flex items-center gap-x-2">
-                    <div 
-                    className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
-                    role="button"
-                    onClick={handleCreate}
-                    >
-                        <Plus className="h-4 w-4 text-muted-foreground"/>
-                    </div>
+          <div className="ml-auto flex items-center gap-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                onClick={(e) => e.stopPropagation()}
+                asChild
+              >
+                <div
+                  role="button"
+                  className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+                >
+                  <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                 </div>
-            )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-60"
+                align="start"
+                side="right"
+                forceMount
+              >
+                <DropdownMenuItem onClick={handleArchived}>
+                  <Trash className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <div className="text-xs text-muted-foreground p-2">
+                  Last edited by: {user?.fullName}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div
+              role="button"
+              onClick={handleCreate}
+              className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+            >
+              <Plus className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+      )}
         </div> 
     )
 }
