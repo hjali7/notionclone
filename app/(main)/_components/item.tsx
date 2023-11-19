@@ -1,9 +1,17 @@
 'use client'
 
 import { Id } from "@/convex/_generated/dataModel";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+
+import { ChevronDown, ChevronRight, LucideIcon, Plus } from "lucide-react";
+
+import { useRouter } from "next/navigation";
+
+import { toast } from "sonner";
 
 interface ItemProps{
     id?: Id<"documents">  ;
@@ -34,6 +42,39 @@ export default function Item (
 
 } : ItemProps) {
 
+    const router = useRouter()
+    const create = useMutation(api.documents.create)
+
+    const handleExpand = (
+        event : React.MouseEvent<HTMLDivElement , MouseEvent>
+    ) => {
+        event.stopPropagation()
+        onExpand?.();
+    };
+
+    const handleCreate = (
+        event : React.MouseEvent<HTMLDivElement , MouseEvent>
+    ) => {
+        event.stopPropagation()
+
+        if(!id) return;
+
+        const promise = create({title : 'Untitle',parentDocument : id })
+            .then(
+                documentId => {
+                    if(!expanded) {
+                        onExpand?.()
+                    }
+                    router.push(`/documents/${documentId}`)
+                }
+            )
+        toast.promise(promise , {
+            loading : 'creating new note!',
+            success : 'New Note Created...',
+            error : 'Some time went wrong.'
+        })
+    }
+
     const ChevronIcon = expanded ? ChevronDown : ChevronRight
 
     return(
@@ -49,7 +90,7 @@ export default function Item (
             {!!id && (
                 <div className="h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-1"
                  role="button"
-                 onClick={()=> {}}
+                 onClick={handleExpand}
                  >
                     <ChevronIcon className="w-4 h-4 text-muted-foreground/50 shrink-0" />
                 </div>
@@ -67,10 +108,21 @@ export default function Item (
             </span>
             {isSearch && (
                 <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground placeholder-opacity-100">
-                    <span>CTR</span> K
+                    <span className='text-xs'>CTR</span> K
                 </kbd>
             )}
-        </div>
+            {!!id && (
+                <div className="ml-auto flex items-center gap-x-2">
+                    <div 
+                    className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+                    role="button"
+                    onClick={handleCreate}
+                    >
+                        <Plus className="h-4 w-4 text-muted-foreground"/>
+                    </div>
+                </div>
+            )}
+        </div> 
     )
 }
 
