@@ -35,7 +35,7 @@ export const create = mutation({
     handler : async (ctx , args) => {
         const identity = await ctx.auth.getUserIdentity() ;
         if(!identity) {
-            throw new Error ('you must login')
+            throw new Error ('Not authenticated')
         }
 
         const userId = identity.subject
@@ -55,7 +55,7 @@ export const archived = mutation({
     handler : async (ctx , args) => {
         const identity = await ctx.auth.getUserIdentity()
         if(!identity) {
-            throw new Error ('you must login')
+            throw new Error ('Not authenticated')
         }
         const userId = identity.subject
 
@@ -88,5 +88,65 @@ export const archived = mutation({
         recursiceArchive(args.id)
 
         return document
+    }
+})
+
+export const getTrash = query({
+    handler : async ctx => {
+        const identity = await ctx.auth?.getUserIdentity()
+        if(!identity) throw new Error('Not authenticated')
+        const userId = identity.subject
+
+        const documents = await ctx.db
+            .query('documents')
+            .withIndex('by_user' , q => q.eq('userId' , userId))
+            .filter(q => q.eq(q.field('isArchived'), true))
+            .order('desc')
+            .collect()
+        return documents        
+    }
+})
+
+export const restore = mutation({
+    args : { id : v.id("documents")},
+    handler : async ( ctx , args ) => {
+        const identity = await ctx.auth.getUserIdentity()
+        if (!identity) throw new Error('Not authentication')
+        const userId = identity.subject
+        
+        const existDocuments = await ctx.db.get(args.id)
+        if (!existDocuments) throw new Error('Not Found!')
+        if(existDocuments.userId !== userId) throw new Error('unauthorized')
+
+        const recursiceRestore = async (documentId : Id<"documents">) => {
+            const children = await ctx.db
+                .query('documents')
+                .withIndex('by_user_parent', q => (
+                    q
+                     .eq('userId' , userId)
+                     .eq('parentDocument' , documentId)
+                ))
+                .collect()
+
+            for (const child of children) {
+                await ctx.db.patch(child._id , { isArchived : false } )
+                await recursiceRestore(child._id);
+            }
+
+        }
+        
+        const options :  Partial<Doc<"documents">> = { isArchived : false}
+        if(existDocuments.parentDocument) {
+            const parent = await ctx.db.get(existDocuments.parentDocument)
+            if(parent?.isArchived) {
+                options.parentDocument = undefined
+            }
+        }
+
+        await ctx.db.patch(args.id , options)
+
+        recursiceRestore(args.id)
+
+        return existDocuments
     }
 })
